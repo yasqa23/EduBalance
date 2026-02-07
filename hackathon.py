@@ -33,7 +33,8 @@ texts = {
         "success": "Data saved successfully!",
         "mood_label": "Estimated Mood:",
         "sleep_info": "Sleep hours:"
-    } "Français": {
+    }, 
+    "Français": {
         "welcome": "Bienvenue sur EduBalance",
         "profile": "Infos Profil",
         "daily": "Stats Quotidiennes",
@@ -118,5 +119,6 @@ with tab3:
 
 st.divider()
 st.caption("EduBalance v1.0 | Hackathon Project 🚀")
+
 
 
