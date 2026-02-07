@@ -40,7 +40,7 @@ t = texts[lang]
 st.title(f"🎓 {t['welcome']}")
 
 # 3. İSTİFADƏÇİ ADI
-user_name_input = st.text_input("👤 Username:", "ali123")
+user_name_input = st.text_input("👤 Username:", "Yasar123")
 
 tab1, tab2, tab3 = st.tabs([t['profile'], t['daily'], t['study']])
 
@@ -109,3 +109,4 @@ with tab3:
 
 st.divider()
 st.caption("EduBalance v1.0 | Hackathon Project 🚀")
+
