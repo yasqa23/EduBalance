@@ -2,8 +2,9 @@ import streamlit as st
 from supabase import create_client
 
 # 1. BAĞLANTI AYARLARI
-URL = "SƏNİN_GOTURDUYUN_URL"
-KEY = "SƏNİN_GOTURDUYUN_ANON_KEY"
+URL = "https://tvqqpbvnfpgyefzxhcjr.supabase.co"
+KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cXFwYnZuZnBneWVmenhoY2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NjkyNjMsImV4cCI6MjA4NjA0NTI2M30.o9m2wuK-FrFRLZ0FLfivz5X8Ryen9OluGvc5F3f6oZY "
+
 supabase = create_client(URL, KEY)
 
 # SƏHİFƏ AYARLARI (Dizayn üçün)
@@ -59,4 +60,5 @@ if st.button(t['send']):
 
 # 7. PROQRAMIN AŞAĞI HİSSƏSİ (Statistika)
 st.divider()
+
 st.write("EduBalance v1.0 - Hackathon Edition")
