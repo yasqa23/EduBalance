@@ -10,8 +10,8 @@ supabase = create_client(URL, KEY)
 
 st.set_page_config(page_title="EduBalance", layout="centered")
 
-# 2. DİL SEÇİMİ
-lang = st.sidebar.selectbox("🌐 Dil / Language", ["Azerbaycan", "English"])
+# 2. DİL SEÇİMİ (Yenilənmiş)
+lang = st.sidebar.selectbox("🌐 Dil / Language / Langue", ["Azerbaycan", "English", "Français"])
 
 texts = {
     "Azerbaycan": {
@@ -33,7 +33,7 @@ texts = {
         "success": "Data saved successfully!",
         "mood_label": "Estimated Mood:",
         "sleep_info": "Sleep hours:"
-    }, 
+    },
     "Français": {
         "welcome": "Bienvenue sur EduBalance",
         "profile": "Infos Profil",
@@ -119,6 +119,7 @@ with tab3:
 
 st.divider()
 st.caption("EduBalance v1.0 | Hackathon Project 🚀")
+
 
 
 
