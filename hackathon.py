@@ -33,6 +33,15 @@ texts = {
         "success": "Data saved successfully!",
         "mood_label": "Estimated Mood:",
         "sleep_info": "Sleep hours:"
+    } "Français": {
+        "welcome": "Bienvenue sur EduBalance",
+        "profile": "Infos Profil",
+        "daily": "Stats Quotidiennes",
+        "study": "Session d'Étude",
+        "save": "Enregistrer",
+        "success": "Données enregistrées avec succès !",
+        "mood_label": "Humeur Estimée :",
+        "sleep_info": "Heures de sommeil :"
     }
 }
 t = texts[lang]
@@ -109,4 +118,5 @@ with tab3:
 
 st.divider()
 st.caption("EduBalance v1.0 | Hackathon Project 🚀")
+
 
