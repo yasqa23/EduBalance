@@ -9,7 +9,7 @@ supabase = create_client(URL, KEY)
 
 st.set_page_config(page_title="EduBalance", layout="centered")
 
-# 2. DİL SEÇİMİ
+# 2. DİL SEÇİMİ VƏ TAM TƏRCÜMƏLƏR
 lang = st.sidebar.selectbox("🌐 Dil / Language / Langue", ["Azerbaycan", "English", "Français"])
 
 texts = {
@@ -25,7 +25,9 @@ texts = {
         "sleep_start": "Nə vaxt yatdınız?",
         "sleep_end": "Nə vaxt oyandınız?",
         "subject_label": "📚 Fənni seçin:",
-        "target_label": "🎯 Hədəf İmtahan:"
+        "target_label": "🎯 Hədəf İmtahan:",
+        "exams": ["Buraxılış İmtahanı", "Blok İmtahanı", "Magistratura", "YÖS / SAT", "MİQ", "Sertifikasiya", "Digər"],
+        "subjects": ["Azərbaycan dili", "Riyaziyyat", "İngilis dili", "Fizika", "Kimya", "Biologiya", "Tarix", "Coğrafiya", "İnformatika", "Digər"]
     },
     "English": {
         "welcome": "Welcome to EduBalance",
@@ -39,7 +41,9 @@ texts = {
         "sleep_start": "When did you sleep?",
         "sleep_end": "When did you wake up?",
         "subject_label": "📚 Select Subject:",
-        "target_label": "🎯 Target Exam:"
+        "target_label": "🎯 Target Exam:",
+        "exams": ["Graduation Exam", "Block Exam", "Master's Degree", "YÖS / SAT", "Teacher Recruitment", "Certification", "Other"],
+        "subjects": ["Azerbaijani language", "Mathematics", "English", "Physics", "Chemistry", "Biology", "History", "Geography", "Informatics", "Other"]
     },
     "Français": {
         "welcome": "Bienvenue sur EduBalance",
@@ -53,7 +57,9 @@ texts = {
         "sleep_start": "Quand avez-vous dormi ?",
         "sleep_end": "Quand vous êtes-vous réveillé ?",
         "subject_label": "📚 Sélectionner la matière:",
-        "target_label": "🎯 Examen Cible:"
+        "target_label": "🎯 Examen Cible:",
+        "exams": ["Examen de fin d'études", "Examen par bloc", "Maîtrise", "YÖS / SAT", "Recrutement des enseignants", "Certification", "Autre"],
+        "subjects": ["Langue azerbaïdjanaise", "Mathématiques", "Anglais", "Physique", "Chimie", "Biologie", "Histoire", "Géographie", "Informatique", "Autre"]
     }
 }
 
@@ -65,18 +71,9 @@ user_name_input = st.text_input("👤 Username:", "ali123")
 
 tab1, tab2, tab3 = st.tabs([t['profile'], t['daily'], t['study']])
 
-# --- TAB 1: PROFİL (COXSEÇİMLİ İMTAHAN SEÇİMİ) ---
+# --- TAB 1: PROFİL (COXSEÇİMLİ İMTAHAN SEÇİMİ - TƏRCÜMƏ OLUNMUŞ) ---
 with tab1:
-    exam_options = [
-        "Buraxılış İmtahanı", 
-        "Blok İmtahanı", 
-        "Magistratura", 
-        "YÖS / SAT", 
-        "MİQ", 
-        "Sertifikasiya", 
-        "Digər"
-    ]
-    target = st.selectbox(t['target_label'], exam_options)
+    target = st.selectbox(t['target_label'], t['exams'])
     
     if st.button(f"{t['save']} (Profile)"):
         prof_data = {"username": user_name_input, "Language": lang, "target_exam": target}
@@ -84,7 +81,7 @@ with tab1:
         st.balloons()
         st.success(t['success'])
 
-# --- TAB 2: GÜNLÜK STATS (AĞILLI ANALİZ) ---
+# --- TAB 2: GÜNLÜK STATS ---
 with tab2:
     st.subheader(f"🌙 {t['sleep_info']}")
     col1, col2 = st.columns(2)
@@ -99,9 +96,9 @@ with tab2:
             wake_dt += datetime.timedelta(days=1)
         
         sleep_duration = (wake_dt - sleep_dt).seconds / 3600
-        st.info(f"⏱️ Toplam yuxu: {sleep_duration:.1f} saat")
+        st.info(f"⏱️ {sleep_duration:.1f} hours")
         
-        water = st.number_input("💧 Günlük içdiyin su (Litr):", 0.0, 5.0, 1.5, step=0.1)
+        water = st.number_input("💧 Water (L):", 0.0, 5.0, 1.5, step=0.1)
     
     with col2:
         score = 0
@@ -114,17 +111,13 @@ with tab2:
         else: score += 0
         
         if score >= 90:
-            auto_mood = "Əla"
-            st.success("Möhtəşəm! Tam balanslısan. 🔥")
+            auto_mood = "Əla / Great / Excellent"
         elif score >= 60:
             auto_mood = "Normal"
-            st.info("Vəziyyətin yaxşıdır. 😊")
         elif 40 <= score < 60:
-            auto_mood = "Yorğun / Halsız"
-            st.warning("Yuxu və ya su çatışmır! ⚠️")
+            auto_mood = "Yorğun / Tired / Fatigué"
         else:
-            auto_mood = "Stressli / Baş ağrısı"
-            st.error("Bədənin SOS verir! Su iç və dincəl. 🚨")
+            auto_mood = "Pis / Bad / Mauvais"
         
         st.text_input(t['mood_label'], auto_mood, disabled=True)
 
@@ -135,35 +128,19 @@ with tab2:
             stats = {"user_ID": u_id, "sleep_hours": sleep_duration, "mood": auto_mood, "water_liters": water}
             supabase.table("daily_stats").insert(stats).execute()
             st.success(t['success'])
-            
-            if water < 2: st.error("💧 Su azlığı diqqəti 25% azaldır! Su iç!")
-            if auto_mood in ["Yorğun", "Stressli", "Halsız"]: 
-                st.info("🎵 Fokuslanmaq üçün pleylist:")
-                st.video("https://www.youtube.com/watch?v=jfKfPfyJRdk")
 
-# --- TAB 3: DƏRS SESSİYASI (FƏNN SEÇİMİ) ---
+# --- TAB 3: DƏRS SESSİYASI (FƏNN SEÇİMİ - TƏRCÜMƏ OLUNMUŞ) ---
 with tab3:
-    subjects_list = [
-        "Azərbaycan dili", "Riyaziyyat", "İngilis dili", 
-        "Fizika", "Kimya", "Biologiya", "Tarix", 
-        "Coğrafiya", "İnformatika", "Digər"
-    ]
+    subject_choice = st.selectbox(t['subject_label'], t['subjects'])
+    duration = st.number_input("⏱️ Duration (Min):", 10, 300, 45)
     
-    subject_choice = st.selectbox(t['subject_label'], subjects_list)
-    duration = st.number_input("⏱️ Müddət (Dəqiqə):", 10, 300, 45)
-    
-    if duration > 90:
-        st.error("🚨 Beyin yorulur! Fasilə ver.")
-    elif duration >= 45:
-        st.info("✅ İdeal fokus müddəti.")
-
     if st.button(f"{t['save']} (Study)"):
         res = supabase.table("students_profiles").select("id").eq("username", user_name_input).execute()
         if res.data:
             u_id = res.data[0]['id']
             study = {"user_ID": u_id, "subject": subject_choice, "duration_time": duration}
             supabase.table("study_sessions").insert(study).execute()
-            st.success(f"{subject_choice} qeyd edildi!")
+            st.success(f"{subject_choice} - {t['success']}")
 
 st.divider()
 st.caption("EduBalance v1.0 | Hackathon Project 🚀")
