@@ -135,6 +135,7 @@ with tab2:
 # --- TAB 3: DƏRS SESSİYASI ---
 with tab3:
     subject = st.text_input("📚 Fənn adı:", "Riyaziyyat")
+    subject=st.text_input("📚 Fənn adı:", "Fizika")
     duration = st.number_input("⏱️ Müddət (Dəqiqə):", 10, 300, 45)
     
     if duration > 90:
@@ -152,3 +153,4 @@ with tab3:
 
 st.divider()
 st.caption("EduBalance v1.0 | Hackathon Project 🚀")
+
