@@ -68,41 +68,54 @@ with tab1:
         st.balloons()
         st.success(t['success'])
 
-# --- TAB 2: GÜNLÜK STATS (AĞILLI YUXU HESABLAYICI) ---
+# --- TAB 2: GÜNLÜK STATS (YUXU + SU MUTENASIBLIYI) ---
 with tab2:
     st.subheader(f"🌙 {t['sleep_info']}")
     col1, col2 = st.columns(2)
     
     with col1:
-        # Saat daxil etmə hissəsi
+        # Yuxu girişi
         sleep_time = st.time_input(t['sleep_start'], datetime.time(23, 0))
         wake_time = st.time_input(t['sleep_end'], datetime.time(7, 0))
         
-        # Yuxu müddətini hesablamaq
         sleep_dt = datetime.datetime.combine(datetime.date.today(), sleep_time)
         wake_dt = datetime.datetime.combine(datetime.date.today(), wake_time)
         if wake_dt <= sleep_dt:
             wake_dt += datetime.timedelta(days=1)
         
         sleep_duration = (wake_dt - sleep_dt).seconds / 3600
-        st.info(f"⏱️ Toplam: {sleep_duration:.1f} saat")
+        st.info(f"⏱️ Toplam yuxu: {sleep_duration:.1f} saat")
         
-        water = st.number_input("💧 Su (Litr):", 0.0, 5.0, 1.5)
+        # Su girişi
+        water = st.number_input("💧 Günlük içdiyin su (Litr):", 0.0, 5.0, 1.5, step=0.1)
     
     with col2:
-        # YUXU VƏ ƏHVAL MƏNTİQİ (Qızıl Orta)
-        if 7 <= sleep_duration <= 9:
+        # --- AĞILLI ƏHVAL ALQORİTMİ (YUXU VƏ SU BİRLİKDƏ) ---
+        score = 0
+        
+        # Yuxu balı
+        if 7 <= sleep_duration <= 9: score += 60
+        elif sleep_duration > 9 or 5 <= sleep_duration < 7: score += 40
+        else: score += 20
+        
+        # Su balı
+        if water >= 2.0: score += 40
+        elif 1.0 <= water < 2.0: score += 20
+        else: score += 0
+        
+        # Final status təyini
+        if score >= 90:
             auto_mood = "Əla"
-            st.success("İdeal yuxu! Enerjin pik nöqtədədir. ⚡")
-        elif sleep_duration > 9:
-            auto_mood = "Halsız"
-            st.warning("Həddindən çox yatmısan, bu süstlük yarada bilər. 😴")
-        elif 5 <= sleep_duration < 7:
+            st.success("Möhtəşəm! Tam balanslısan. 🔥")
+        elif score >= 60:
             auto_mood = "Normal"
-            st.info("Fokuslanmaq üçün kifayətdir. 😊")
+            st.info("Vəziyyətin yaxşıdır. 😊")
+        elif 40 <= score < 60:
+            auto_mood = "Yorğun / Halsız"
+            st.warning("Yuxu və ya su çatışmır! ⚠️")
         else:
-            auto_mood = "Yorğun"
-            st.error("Yuxun çox azdır! Özünü yorma. ⚠️")
+            auto_mood = "Stressli / Baş ağrısı"
+            st.error("Bədənin SOS verir! Su iç və dincəl. 🚨")
         
         st.text_input(t['mood_label'], auto_mood, disabled=True)
 
@@ -114,9 +127,9 @@ with tab2:
             supabase.table("daily_stats").insert(stats).execute()
             st.success(t['success'])
             
-            if water < 2: st.warning("💧 Su içməyi unutma!")
-            if auto_mood in ["Yorğun", "Halsız"]: 
-                st.info("🎵 Rahatlamaq üçün pleylist:")
+            if water < 2: st.error("💧 Su azlığı diqqəti 25% azaldır! Su iç!")
+            if auto_mood in ["Yorğun", "Stressli", "Halsız"]: 
+                st.info("🎵 Fokuslanmaq üçün pleylist:")
                 st.video("https://www.youtube.com/watch?v=jfKfPfyJRdk")
 
 # --- TAB 3: DƏRS SESSİYASI ---
@@ -125,9 +138,9 @@ with tab3:
     duration = st.number_input("⏱️ Müddət (Dəqiqə):", 10, 300, 45)
     
     if duration > 90:
-        st.error("🚨 Pomodoro texnikasını yoxla (90 dəqiqə + fasilə)!")
+        st.error("🚨 Beyin yorulur! Fasilə ver.")
     elif duration >= 45:
-        st.info("✅ İdeal dərs müddətidir.")
+        st.info("✅ İdeal fokus müddəti.")
 
     if st.button(f"{t['save']} (Study)"):
         res = supabase.table("students_profiles").select("id").eq("username", user_name_input).execute()
