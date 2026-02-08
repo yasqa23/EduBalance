@@ -23,7 +23,8 @@ texts = {
         "mood_label": "Təxmin edilən Əhval:",
         "sleep_info": "Yuxu hesabı:",
         "sleep_start": "Nə vaxt yatdınız?",
-        "sleep_end": "Nə vaxt oyandınız?"
+        "sleep_end": "Nə vaxt oyandınız?",
+        "subject_label": "📚 Fənni seçin:"
     },
     "English": {
         "welcome": "Welcome to EduBalance",
@@ -35,7 +36,8 @@ texts = {
         "mood_label": "Estimated Mood:",
         "sleep_info": "Sleep Calculation:",
         "sleep_start": "When did you sleep?",
-        "sleep_end": "When did you wake up?"
+        "sleep_end": "When did you wake up?",
+        "subject_label": "📚 Select Subject:"
     },
     "Français": {
         "welcome": "Bienvenue sur EduBalance",
@@ -47,7 +49,8 @@ texts = {
         "mood_label": "Humeur Estimée :",
         "sleep_info": "Calcul du sommeil :",
         "sleep_start": "Quand avez-vous dormi ?",
-        "sleep_end": "Quand vous êtes-vous réveillé ?"
+        "sleep_end": "Quand vous êtes-vous réveillé ?",
+        "subject_label": "📚 Sélectionner la matière:"
     }
 }
 
@@ -74,7 +77,6 @@ with tab2:
     col1, col2 = st.columns(2)
     
     with col1:
-        # Yuxu girişi
         sleep_time = st.time_input(t['sleep_start'], datetime.time(23, 0))
         wake_time = st.time_input(t['sleep_end'], datetime.time(7, 0))
         
@@ -86,24 +88,18 @@ with tab2:
         sleep_duration = (wake_dt - sleep_dt).seconds / 3600
         st.info(f"⏱️ Toplam yuxu: {sleep_duration:.1f} saat")
         
-        # Su girişi
         water = st.number_input("💧 Günlük içdiyin su (Litr):", 0.0, 5.0, 1.5, step=0.1)
     
     with col2:
-        # --- AĞILLI ƏHVAL ALQORİTMİ (YUXU VƏ SU BİRLİKDƏ) ---
         score = 0
-        
-        # Yuxu balı
         if 7 <= sleep_duration <= 9: score += 60
         elif sleep_duration > 9 or 5 <= sleep_duration < 7: score += 40
         else: score += 20
         
-        # Su balı
         if water >= 2.0: score += 40
         elif 1.0 <= water < 2.0: score += 20
         else: score += 0
         
-        # Final status təyini
         if score >= 90:
             auto_mood = "Əla"
             st.success("Möhtəşəm! Tam balanslısan. 🔥")
@@ -132,10 +128,16 @@ with tab2:
                 st.info("🎵 Fokuslanmaq üçün pleylist:")
                 st.video("https://www.youtube.com/watch?v=jfKfPfyJRdk")
 
-# --- TAB 3: DƏRS SESSİYASI ---
+# --- TAB 3: DƏRS SESSİYASI (FƏNN SEÇİMİ İLƏ) ---
 with tab3:
-    subject = st.text_input("📚 Fənn adı:", "Riyaziyyat")
-    subject=st.text_input("📚 Fənn adı:", "Fizika")
+    # Fənn siyahısı (selectbox üçün)
+    subjects_list = [
+        "Azərbaycan dili", "Riyaziyyat", "İngilis dili", 
+        "Fizika", "Kimya", "Biologiya", "Tarix", 
+        "Coğrafiya", "İnformatika", "Digər"
+    ]
+    
+    subject_choice = st.selectbox(t['subject_label'], subjects_list)
     duration = st.number_input("⏱️ Müddət (Dəqiqə):", 10, 300, 45)
     
     if duration > 90:
@@ -147,10 +149,9 @@ with tab3:
         res = supabase.table("students_profiles").select("id").eq("username", user_name_input).execute()
         if res.data:
             u_id = res.data[0]['id']
-            study = {"user_ID": u_id, "subject": subject, "duration_time": duration}
+            study = {"user_ID": u_id, "subject": subject_choice, "duration_time": duration}
             supabase.table("study_sessions").insert(study).execute()
-            st.success(f"{subject} qeyd edildi!")
+            st.success(f"{subject_choice} qeyd edildi!")
 
 st.divider()
 st.caption("EduBalance v1.0 | Hackathon Project 🚀")
-
