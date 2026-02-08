@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduBalance</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+<style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; background: #f7f7f7; }
+    h1 { text-align: center; }
+    .tab { display: none; margin-top: 20px; }
+    .tab.active { display: block; }
+    button { margin-top: 10px; padding: 8px 12px; }
+    input, select { padding: 5px; margin: 5px 0; width: 100%; }
+    .tabs button { margin-right: 5px; }
+    .metric { margin-top: 10px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>🎓 EduBalance</h1>
+
+<!-- Dil seçimi -->
+<label for="lang">🌐 Dil / Language / Langue:</label>
+<select id="lang">
+    <option value="Azerbaycan">Azerbaycan</option>
+    <option value="English">English</option>
+    <option value="Français">Français</option>
+</select>
+
+<!-- İstifadəçi adı -->
+<label for="username">👤 İstifadəçi adı:</label>
+<input type="text" id="username" placeholder="Adınızı daxil edin...">
+
+<!-- Tablar -->
+<div class="tabs">
+    <button onclick="showTab('profile')">Profil Yarat</button>
+    <button onclick="showTab('daily')">Günlük Statistika</button>
+    <button onclick="showTab('study')">Dərs Sessiyası</button>
+</div>
+
+<!-- Profil -->
+<div id="profile" class="tab active">
+    <label>🎯 Hədəf İmtahan:</label>
+    <select id="targetExam">
+        <option>Buraxılış</option>
+        <option>Blok</option>
+        <option>Magistratura</option>
+        <option>YÖS/SAT</option>
+        <option>MİQ</option>
+        <option>Digər</option>
+    </select>
+    <button onclick="createProfile()">➕ Profil Yarat / Yenilə</button>
+    <p id="profileMsg"></p>
+</div>
+
+<!-- Günlük -->
+<div id="daily" class="tab">
+    <label>🌙 Yuxu (Saat):</label>
+    <input type="number" id="sleep" min="0" max="12" step="0.1" value="8">
+    <label>💧 Su (Litr):</label>
+    <input type="number" id="water" min="0" max="5" step="0.1" value="1.5">
+    <p class="metric" id="moodMetric">Təxmin edilən Əhval: -</p>
+    <button onclick="saveDaily()">💾 Yadda saxla (Daily)</button>
+    <p id="dailyMsg"></p>
+</div>
+
+<!-- Dərs -->
+<div id="study" class="tab">
+    <label>📚 Fənni seçin:</label>
+    <select id="subject">
+        <option>Azərbaycan dili</option>
+        <option>Riyaziyyat</option>
+        <option>İngilis dili</option>
+        <option>Fizika</option>
+        <option>Digər</option>
+    </select>
+    <label>⏱️ (dəqiqə):</label>
+    <input type="number" id="duration" min="10" max="300" value="45">
+    <button onclick="saveStudy()">📖 Yadda saxla (Study)</button>
+    <p id="studyMsg"></p>
+</div>
+
+<script>
+    // --- Supabase connection ---
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let userId = null;
+
+    function showTab(tabId) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    async function getProfileId(username) {
+        let { data, error } = await supabase
+            .from('students_profiles')
+            .select('id')
+            .eq('username', username)
+            .limit(1);
+        if (error) { console.error(error); return null; }
+        if (data.length > 0) return data[0].id;
+        return null;
+    }
+
+    async function createProfile() {
+        const username = document.getElementById('username').value.trim();
+        const lang = document.getElementById('lang').value;
+        const target = document.getElementById('targetExam').value;
+        if (!username) { alert("İstifadəçi adını daxil edin!"); return; }
+
+        let { data, error } = await supabase
+            .from('students_profiles')
+            .upsert({ username, language: lang, target_exam: target, updated_at: new Date().toISOString() }, { onConflict: 'username' });
+        if (error) {
+            document.getElementById('profileMsg').innerText = "Profil yazılmadı: " + error.message;
+        } else {
+            userId = await getProfileId(username);
+            document.getElementById('profileMsg').innerText = "Profil yadda saxlanıldı ✅";
+        }
+    }
+
+    async function saveDaily() {
+        if (!userId) { alert("Əvvəl Profil yarat!"); return; }
+        const sleep = parseFloat(document.getElementById('sleep').value);
+        const water = parseFloat(document.getElementById('water').value);
+        let score = (sleep >=7 && sleep <=9 ? 60 : 30) + (water>=2?40:15);
+        let mood = score>=90?"Əla 🔥":(score>=60?"Normal 😊":"Yorğun 😴");
+        document.getElementById('moodMetric').innerText = Təxmin edilən Əhval: ${mood};
+
+        let { data, error } = await supabase.from('daily_stats').insert({
+            user_id: userId,
+            stat_date: new Date().toISOString().split('T')[0],
+            sleep_hours: sleep,
+            water_liters: water,
+            score: score,
+            mood: mood,
+            created_at: new Date().toISOString()
+        });
+
+        if (error) document.getElementById('dailyMsg').innerText = "Daily yazılmadı: " + error.message;
+        else document.getElementById('dailyMsg').innerText = "Məlumatlar uğurla qeyd olundu!";
+    }
+
+    async function saveStudy() {
+        if (!userId) { alert("Əvvəl Profil yarat!"); return; }
+        const subject = document.getElementById('subject').value;
+        const duration = parseInt(document.getElementById('duration').value);
+
+        let { data, error } = await supabase.from('study_sessions').insert({
+            user_id: userId,
+            session_date: new Date().toISOString().split('T')[0],
+            subject: subject,
+            duration_min: duration,
+            created_at: new Date().toISOString()
+        });
+
+        if (error) document.getElementById('studyMsg').innerText = "Study yazılmadı: " + error.message;
+        else document.getElementById('studyMsg').innerText = ${subject} - qeyd olundu ✅;
+    }
+
+</script>
+</body>
+</html>
