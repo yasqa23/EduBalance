@@ -9,19 +9,24 @@ supabase = create_client(URL, KEY)
 
 st.set_page_config(page_title="EduBalance", layout="centered")
 
+# --- SESSİYA YADDAŞI (Məlumatların itməməsi üçün) ---
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
+
 # 2. DİL SEÇİMİ
 lang = st.sidebar.selectbox("🌐 Dil / Language / Langue", ["Azerbaycan", "English", "Français"])
 
 texts = {
     "Azerbaycan": {
         "welcome": "EduBalance-a Xoş Gəldiniz",
-        "user_placeholder": "İstifadəçi adınızı daxil edin (məs: elnur_01)",
+        "user_label": "👤 İstifadəçi adı:",
+        "user_placeholder": "Adınızı daxil edin...",
         "profile": "Profil Yarat",
         "daily": "Günlük Statistika",
         "study": "Dərs Sessiyası",
         "save": "Yadda saxla",
         "success": "Məlumatlar uğurla qeyd olundu!",
-        "error_user": "Zəhmət olmasa əvvəlcə istifadəçi adı yaradın!",
+        "error_user": "Davam etmək üçün istifadəçi adını yazıb Enter basın!",
         "mood_label": "Təxmin edilən Əhval:",
         "target_label": "🎯 Hədəf İmtahan:",
         "subject_label": "📚 Fənni seçin:",
@@ -30,13 +35,14 @@ texts = {
     },
     "English": {
         "welcome": "Welcome to EduBalance",
-        "user_placeholder": "Enter your username (e.g., elnur_01)",
+        "user_label": "👤 Username:",
+        "user_placeholder": "Enter your name...",
         "profile": "Create Profile",
         "daily": "Daily Stats",
         "study": "Study Session",
         "save": "Save Data",
         "success": "Data saved successfully!",
-        "error_user": "Please create a username first!",
+        "error_user": "Please enter username and press Enter!",
         "mood_label": "Estimated Mood:",
         "target_label": "🎯 Target Exam:",
         "subject_label": "📚 Select Subject:",
@@ -45,13 +51,14 @@ texts = {
     },
     "Français": {
         "welcome": "Bienvenue sur EduBalance",
-        "user_placeholder": "Entrez votre nom d'utilisateur",
+        "user_label": "👤 Nom d'utilisateur:",
+        "user_placeholder": "Entrez votre nom...",
         "profile": "Créer un profil",
         "daily": "Stats Quotidiennes",
         "study": "Session d'Étude",
         "save": "Enregistrer",
         "success": "Données enregistrées avec succès !",
-        "error_user": "Veuillez d'abord créer un nom d'utilisateur !",
+        "error_user": "Veuillez entrer votre nom et appuyer sur Entrée !",
         "mood_label": "Humeur Estimée :",
         "target_label": "🎯 Examen Cible:",
         "exams": ["Examen de fin d'études", "Examen par bloc", "Maîtrise", "YÖS / SAT", "Recrutement des enseignants", "Certification", "Autre"],
@@ -62,12 +69,17 @@ texts = {
 t = texts[lang]
 st.title(f"🎓 {t['welcome']}")
 
-# 3. İSTİFADƏÇİ ADI YARADILMASI (BOŞ BURAXILDI)
-user_name_input = st.text_input("👤 Username:", placeholder=t['user_placeholder']).strip()
+# 3. İSTİFADƏÇİ ADI (SESSION STATE İLƏ)
+# value hissəsini st.session_state.user_name-ə bağladıq
+user_input = st.text_input(t['user_label'], value=st.session_state.user_name, placeholder=t['user_placeholder'])
 
-if not user_name_input:
+# Adı yaddaşda saxlayırıq
+if user_input:
+    st.session_state.user_name = user_input
+
+if not st.session_state.user_name:
     st.warning(t['error_user'])
-    st.stop() # İstifadəçi adı yazılana qədər proqramın qalanını göstərmir
+    st.stop()
 
 tab1, tab2, tab3 = st.tabs([t['profile'], t['daily'], t['study']])
 
@@ -75,10 +87,10 @@ tab1, tab2, tab3 = st.tabs([t['profile'], t['daily'], t['study']])
 with tab1:
     target = st.selectbox(t['target_label'], t['exams'])
     if st.button(f"➕ {t['profile']}"):
-        prof_data = {"username": user_name_input, "Language": lang, "target_exam": target}
+        prof_data = {"username": st.session_state.user_name, "Language": lang, "target_exam": target}
         supabase.table("students_profiles").insert(prof_data).execute()
         st.balloons()
-        st.success(f"@{user_name_input}, {t['success']}")
+        st.success(f"@{st.session_state.user_name}, {t['success']}")
 
 # --- TAB 2: GÜNLÜK STATS ---
 with tab2:
@@ -88,20 +100,17 @@ with tab2:
         water = st.number_input("💧 Su (Litr):", 0.0, 5.0, 1.5, step=0.1)
     
     with col2:
-        # Əhval hesablama məntiqi
         score = (60 if 7 <= sleep_duration <= 9 else 30) + (40 if water >= 2 else 15)
         auto_mood = "Əla" if score >= 90 else "Normal" if score >= 60 else "Yorğun"
         st.metric(t['mood_label'], auto_mood)
 
     if st.button(f"💾 {t['save']} (Daily)"):
-        res = supabase.table("students_profiles").select("id").eq("username", user_name_input).execute()
+        res = supabase.table("students_profiles").select("id").eq("username", st.session_state.user_name).execute()
         if res.data:
             u_id = res.data[0]['id']
             stats = {"user_ID": u_id, "sleep_hours": sleep_duration, "mood": auto_mood, "water_liters": water}
             supabase.table("daily_stats").insert(stats).execute()
             st.success(t['success'])
-        else:
-            st.error("Bu istifadəçi adı ilə profil tapılmadı. Öncə 'Profil Yarat' bölməsinə keçin.")
 
 # --- TAB 3: DƏRS SESSİYASI ---
 with tab3:
@@ -109,7 +118,7 @@ with tab3:
     duration = st.number_input("⏱️ (Dəqiqə):", 10, 300, 45)
     
     if st.button(f"📖 {t['save']} (Study)"):
-        res = supabase.table("students_profiles").select("id").eq("username", user_name_input).execute()
+        res = supabase.table("students_profiles").select("id").eq("username", st.session_state.user_name).execute()
         if res.data:
             u_id = res.data[0]['id']
             study = {"user_ID": u_id, "subject": subject_choice, "duration_time": duration}
@@ -117,4 +126,4 @@ with tab3:
             st.success(f"{subject_choice} qeyd edildi!")
 
 st.divider()
-st.caption("EduBalance v1.1 | Hackathon Project 🚀")
+st.caption("EduBalance v1.2 | Fixed State 🚀")
