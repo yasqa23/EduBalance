@@ -24,7 +24,8 @@ texts = {
         "sleep_info": "Yuxu hesabı:",
         "sleep_start": "Nə vaxt yatdınız?",
         "sleep_end": "Nə vaxt oyandınız?",
-        "subject_label": "📚 Fənni seçin:"
+        "subject_label": "📚 Fənni seçin:",
+        "target_label": "🎯 Hədəf İmtahan:"
     },
     "English": {
         "welcome": "Welcome to EduBalance",
@@ -37,7 +38,8 @@ texts = {
         "sleep_info": "Sleep Calculation:",
         "sleep_start": "When did you sleep?",
         "sleep_end": "When did you wake up?",
-        "subject_label": "📚 Select Subject:"
+        "subject_label": "📚 Select Subject:",
+        "target_label": "🎯 Target Exam:"
     },
     "Français": {
         "welcome": "Bienvenue sur EduBalance",
@@ -50,7 +52,8 @@ texts = {
         "sleep_info": "Calcul du sommeil :",
         "sleep_start": "Quand avez-vous dormi ?",
         "sleep_end": "Quand vous êtes-vous réveillé ?",
-        "subject_label": "📚 Sélectionner la matière:"
+        "subject_label": "📚 Sélectionner la matière:",
+        "target_label": "🎯 Examen Cible:"
     }
 }
 
@@ -62,16 +65,26 @@ user_name_input = st.text_input("👤 Username:", "ali123")
 
 tab1, tab2, tab3 = st.tabs([t['profile'], t['daily'], t['study']])
 
-# --- TAB 1: PROFİL ---
+# --- TAB 1: PROFİL (COXSEÇİMLİ İMTAHAN SEÇİMİ) ---
 with tab1:
-    target = st.text_input("🎯 Hədəf İmtahan:", "Blok İmtahanı")
+    exam_options = [
+        "Buraxılış İmtahanı", 
+        "Blok İmtahanı", 
+        "Magistratura", 
+        "YÖS / SAT", 
+        "MİQ", 
+        "Sertifikasiya", 
+        "Digər"
+    ]
+    target = st.selectbox(t['target_label'], exam_options)
+    
     if st.button(f"{t['save']} (Profile)"):
         prof_data = {"username": user_name_input, "Language": lang, "target_exam": target}
         supabase.table("students_profiles").insert(prof_data).execute()
         st.balloons()
         st.success(t['success'])
 
-# --- TAB 2: GÜNLÜK STATS (YUXU + SU MUTENASIBLIYI) ---
+# --- TAB 2: GÜNLÜK STATS (AĞILLI ANALİZ) ---
 with tab2:
     st.subheader(f"🌙 {t['sleep_info']}")
     col1, col2 = st.columns(2)
@@ -128,9 +141,8 @@ with tab2:
                 st.info("🎵 Fokuslanmaq üçün pleylist:")
                 st.video("https://www.youtube.com/watch?v=jfKfPfyJRdk")
 
-# --- TAB 3: DƏRS SESSİYASI (FƏNN SEÇİMİ İLƏ) ---
+# --- TAB 3: DƏRS SESSİYASI (FƏNN SEÇİMİ) ---
 with tab3:
-    # Fənn siyahısı (selectbox üçün)
     subjects_list = [
         "Azərbaycan dili", "Riyaziyyat", "İngilis dili", 
         "Fizika", "Kimya", "Biologiya", "Tarix", 
