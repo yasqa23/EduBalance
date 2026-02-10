@@ -18,13 +18,14 @@ if "user_name" not in st.session_state:
     st.session_state.user_name = ""
 
 # 2. 7 DİLLİ LÜĞƏT SİSTEMİ (Addım 1)
-lang = st.sidebar.selectbox("🌐 Dil / Language", 
+lang = st.sidebar.selectbox("🌐 Choose Language / Dil seçin", 
     ["Azerbaycan", "Türkçe", "English", "Español", "Italiano", "Français", "Deutsch", "Русский"])
 
 texts = {
     "Azerbaycan": {
         "welcome": "EduBalance-a Xoş Gəldiniz",
         "user_label": "👤 İstifadəçi adı:",
+        "user_placeholder": "Adınızı daxil edin...",
         "profile": "Profil",
         "daily": "Statistika",
         "study": "Dərs",
@@ -33,12 +34,20 @@ texts = {
         "motivation": "🔥 Motivasiya",
         "save": "Yadda saxla",
         "success": "Uğurla tamamlandı!",
-        "error_user": "Adınızı daxil edin!",
-        "target_label": "🎯 Hədəf İmtahan:"
+        "error_user": "Davam etmək üçün adınızı yazıb Enter basın!",
+        "target_label": "🎯 Hədəf İmtahan:",
+        "subject_label": "📚 Fənni seçin:",
+        "sleep_label": "🌙 Yuxu (Saat):",
+        "water_label": "💧 Su (Litr):",
+        "mood_label": "Təxmin edilən Əhval:",
+        "mood_status": {"great": "Əla 🔥", "normal": "Normal 😊", "tired": "Yorğun 😴"},
+        "exams": ["Buraxılış İmtahanı", "Blok İmtahanı", "Magistratura", "YÖS / SAT", "MİQ", "Sertifikasiya", "Digər"],
+        "subjects": ["Azərbaycan dili", "Riyaziyyat", "İngilis dili", "Fizika", "Kimya", "Biologiya", "Tarix", "Coğrafiya", "İnformatika", "Digər"]
     },
     "Türkçe": {
         "welcome": "EduBalance'a Hoş Geldiniz",
-        "user_label": "👤 Kullanıcı Adı:",
+        "user_label": "👤 Kullanıcı adı:",
+        "user_placeholder": "Adınızı girin...",
         "profile": "Profil",
         "daily": "İstatistik",
         "study": "Ders",
@@ -47,12 +56,20 @@ texts = {
         "motivation": "🔥 Motivasyon",
         "save": "Kaydet",
         "success": "Başarıyla tamamlandı!",
-        "error_user": "Adınızı giriniz!",
-        "target_label": "🎯 Hedef Sınav:"
+        "error_user": "Devam etmek için adınızı girin!",
+        "target_label": "🎯 Hedef Sınav:",
+        "subject_label": "📚 Ders seçin:",
+        "sleep_label": "🌙 Uyku (Saat):",
+        "water_label": "💧 Su (Litre):",
+        "mood_label": "Tahmini Ruh Hali:",
+        "mood_status": {"great": "Harika 🔥", "normal": "Normal 😊", "tired": "Yorgun 😴"},
+        "exams": ["Mezuniyet Sınavı", "Blok Sınavı", "Yüksek Lisans", "YÖS / SAT", "Öğretmen Atama", "Sertifika", "Diğer"],
+        "subjects": ["Türkçe", "Matematik", "İngilizce", "Fizik", "Kimya", "Biyoloji", "Tarih", "Coğrafya", "Bilişim", "Diğer"]
     },
     "English": {
         "welcome": "Welcome to EduBalance",
         "user_label": "👤 Username:",
+        "user_placeholder": "Enter your name...",
         "profile": "Profile",
         "daily": "Stats",
         "study": "Study",
@@ -61,26 +78,42 @@ texts = {
         "motivation": "🔥 Motivation",
         "save": "Save",
         "success": "Successfully completed!",
-        "error_user": "Please enter your name!",
-        "target_label": "🎯 Target Exam:"
+        "error_user": "Please enter username and press Enter!",
+        "target_label": "🎯 Target Exam:",
+        "subject_label": "📚 Select Subject:",
+        "sleep_label": "🌙 Sleep (Hours):",
+        "water_label": "💧 Water (Liters):",
+        "mood_label": "Estimated Mood:",
+        "mood_status": {"great": "Great 🔥", "normal": "Normal 😊", "tired": "Tired 😴"},
+        "exams": ["Graduation Exam", "Block Exam", "Master's Degree", "YÖS / SAT", "Teacher Recruitment", "Certification", "Other"],
+        "subjects": ["Language", "Mathematics", "English", "Physics", "Chemistry", "Biology", "History", "Geography", "Informatics", "Other"]
     },
     "Español": {
         "welcome": "Bienvenido a EduBalance",
         "user_label": "👤 Usuario:",
+        "user_placeholder": "Ingresa tu nombre...",
         "profile": "Perfil",
         "daily": "Estadísticas",
         "study": "Estudio",
         "ai_mentor": "🤖 IA Mentor",
-        "playlist": "📺 Lista de reproducción",
+        "playlist": "📺 Lista",
         "motivation": "🔥 Motivación",
         "save": "Guardar",
-        "success": "¡Completado con éxito!",
+        "success": "¡Éxito!",
         "error_user": "¡Ingrese su nombre!",
-        "target_label": "🎯 Examen Objetivo:"
+        "target_label": "🎯 Examen Objetivo:",
+        "subject_label": "📚 Materia:",
+        "sleep_label": "🌙 Sueño (Horas):",
+        "water_label": "💧 Agua (Litros):",
+        "mood_label": "Estado de ánimo:",
+        "mood_status": {"great": "Genial 🔥", "normal": "Normal 😊", "tired": "Cansado 😴"},
+        "exams": ["Graduación", "Bloque", "Maestría", "SAT", "Otros"],
+        "subjects": ["Lengua", "Matemáticas", "Inglés", "Física", "Química", "Biología", "Otros"]
     },
     "Italiano": {
         "welcome": "Benvenuti in EduBalance",
         "user_label": "👤 Nome utente:",
+        "user_placeholder": "Inserisci il tuo nome...",
         "profile": "Profilo",
         "daily": "Statistiche",
         "study": "Studio",
@@ -88,13 +121,21 @@ texts = {
         "playlist": "📺 Playlist",
         "motivation": "🔥 Motivazione",
         "save": "Salva",
-        "success": "Completato con successo!",
+        "success": "Completato!",
         "error_user": "Inserisci il tuo nome!",
-        "target_label": "🎯 Esame Obiettivo:"
+        "target_label": "🎯 Esame Obiettivo:",
+        "subject_label": "📚 Materia:",
+        "sleep_label": "🌙 Sonno (Ore):",
+        "water_label": "💧 Acqua (Litri):",
+        "mood_label": "Umore Stimato:",
+        "mood_status": {"great": "Ottimo 🔥", "normal": "Normale 😊", "tired": "Stanco 😴"},
+        "exams": ["Laurea", "Master", "SAT", "Altro"],
+        "subjects": ["Lingua", "Matematica", "Inglese", "Fisica", "Chimica", "Biologia", "Altro"]
     },
     "Français": {
         "welcome": "Bienvenue sur EduBalance",
         "user_label": "👤 Nom d'utilisateur:",
+        "user_placeholder": "Entrez votre nom...",
         "profile": "Profil",
         "daily": "Stats",
         "study": "Étude",
@@ -102,45 +143,69 @@ texts = {
         "playlist": "📺 Playlist",
         "motivation": "🔥 Motivation",
         "save": "Enregistrer",
-        "success": "Terminé avec succès !",
+        "success": "Succès !",
         "error_user": "Entrez votre nom !",
-        "target_label": "🎯 Examen Cible:"
+        "target_label": "🎯 Examen Cible:",
+        "subject_label": "📚 Matière:",
+        "sleep_label": "🌙 Sommeil (Heures):",
+        "water_label": "💧 Eau (Litres):",
+        "mood_label": "Humeur Estimée:",
+        "mood_status": {"great": "Excellent 🔥", "normal": "Normal 😊", "tired": "Fatigué 😴"},
+        "exams": ["Fin d'études", "Master", "SAT", "Autre"],
+        "subjects": ["Langue", "Mathématiques", "Anglais", "Physique", "Chimie", "Biologie", "Autre"]
     },
     "Deutsch": {
         "welcome": "Willkommen bei EduBalance",
         "user_label": "👤 Benutzername:",
+        "user_placeholder": "Namen eingeben...",
         "profile": "Profil",
         "daily": "Statistiken",
-        "study": "Studium",
+        "study": "Lernen",
         "ai_mentor": "🤖 KI-Mentor",
-        "playlist": "📺 Playlisten",
+        "playlist": "📺 Playlist",
         "motivation": "🔥 Motivation",
         "save": "Speichern",
-        "success": "Erfolgreich abgeschlossen!",
-        "error_user": "Geben Sie Ihren Namen ein!",
-        "target_label": "🎯 Zielprüfung:"
+        "success": "Erfolg!",
+        "error_user": "Name eingeben!",
+        "target_label": "🎯 Zielprüfung:",
+        "subject_label": "📚 Fach auswählen:",
+        "sleep_label": "🌙 Schlaf (Stunden):",
+        "water_label": "💧 Wasser (Liter):",
+        "mood_label": "Stimmung:",
+        "mood_status": {"great": "Super 🔥", "normal": "Normal 😊", "tired": "Müde 😴"},
+        "exams": ["Abschluss", "Master", "SAT", "Andere"],
+        "subjects": ["Sprache", "Mathematik", "Englisch", "Physik", "Chemie", "Biologie", "Andere"]
     },
     "Русский": {
         "welcome": "Добро пожаловать в EduBalance",
         "user_label": "👤 Имя пользователя:",
+        "user_placeholder": "Введите имя...",
         "profile": "Профиль",
         "daily": "Статистика",
         "study": "Учеба",
         "ai_mentor": "🤖 ИИ Ментор",
-        "playlist": "📺 Плейлисты",
+        "playlist": "📺 Плейлист",
         "motivation": "🔥 Мотивация",
         "save": "Сохранить",
-        "success": "Успешно завершено!",
-        "error_user": "Введите ваше имя!",
-        "target_label": "🎯 Целевой Экзамен:"
+        "success": "Успешно!",
+        "error_user": "Введите имя!",
+        "target_label": "🎯 Целевой Экзамен:",
+        "subject_label": "📚 Предмет:",
+        "sleep_label": "🌙 Сон (Часы):",
+        "water_label": "💧 Вода (Литры):",
+        "mood_label": "Настроение:",
+        "mood_status": {"great": "Отлично 🔥", "normal": "Нормально 😊", "tired": "Усталость 😴"},
+        "exams": ["Выпускной", "Магистратура", "SAT", "Другое"],
+        "subjects": ["Язык", "Математика", "Английский", "Физика", "Химия", "Биология", "Другое"]
     }
 }
 
 t = texts[lang]
 st.title(f"🎓 {t['welcome']}")
 
-# Kullanıcı Girişi
-user_input = st.text_input(t['user_label'], value=st.session_state.user_name)
+# 3. İSTİFADƏÇİ GİRİŞİ
+user_input = st.text_input(t['user_label'], value=st.session_state.user_name, placeholder=t['user_placeholder'])
+
 if user_input:
     st.session_state.user_name = user_input
 
@@ -148,28 +213,61 @@ if not st.session_state.user_name:
     st.warning(t['error_user'])
     st.stop()
 
-# 3. YENİ TAB STRUKTURU (Addım-addım dolduracağıq)
-tab1, tab2, tab3, tab4, tab5 = st.tabs([t['profile'], t['daily'], t['ai_mentor'], t['playlist'], t['motivation']])
+# TAB STRUKTURU (Addım-addım dolduracağıq)
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([t['profile'], t['daily'], t['study'], t['ai_mentor'], t['playlist'], t['motivation']])
 
+# --- TAB 1: PROFİL ---
 with tab1:
-    st.subheader(t['profile'])
-    # Profil kodları bura gələcək...
+    target = st.selectbox(t['target_label'], t['exams'])
+    if st.button(f"➕ {t['profile']}"):
+        prof_data = {"username": st.session_state.user_name, "Language": lang, "target_exam": target}
+        supabase.table("students_profiles").upsert(prof_data, on_conflict="username").execute()
+        st.balloons()
+        st.success(f"@{st.session_state.user_name}, {t['success']}")
 
+# --- TAB 2: GÜNLÜK STATS ---
 with tab2:
-    st.subheader(t['daily'])
-    # Statistika kodları bura gələcək...
+    col1, col2 = st.columns(2)
+    with col1:
+        sleep_duration = st.slider(t['sleep_label'], 0.0, 12.0, 8.0)
+        water = st.number_input(t['water_label'], 0.0, 5.0, 1.5, step=0.1)
+    
+    with col2:
+        score = (60 if 7 <= sleep_duration <= 9 else 30) + (40 if water >= 2 else 15)
+        if score >= 90: current_mood = t['mood_status']['great']
+        elif score >= 60: current_mood = t['mood_status']['normal']
+        else: current_mood = t['mood_status']['tired']
+        st.metric(t['mood_label'], current_mood)
 
+    if st.button(f"💾 {t['save']} (Daily)"):
+        res = supabase.table("students_profiles").select("id").eq("username", st.session_state.user_name).execute()
+        if res.data:
+            u_id = res.data[0]['id']
+            stats = {"user_ID": u_id, "sleep_hours": sleep_duration, "mood": current_mood, "water_liters": water}
+            supabase.table("daily_stats").insert(stats).execute()
+            st.success(t['success'])
+
+# --- TAB 3: DƏRS SESSİYASI ---
 with tab3:
-    st.subheader(t['ai_mentor'])
-    st.info("Bu bölmədə AI sənin üçün cədvəl hazırlayacaq (Növbəti addım).")
+    subject_choice = st.selectbox(t['subject_label'], t['subjects'])
+    duration = st.number_input("⏱️ (min):", 10, 300, 45)
+    if st.button(f"📖 {t['save']} (Study)"):
+        res = supabase.table("students_profiles").select("id").eq("username", st.session_state.user_name).execute()
+        if res.data:
+            u_id = res.data[0]['id']
+            study = {"user_ID": u_id, "subject": subject_choice, "duration_time": duration}
+            supabase.table("study_sessions").insert(study).execute()
+            st.success(f"{subject_choice} - {t['success']}")
 
+# --- TAB 4, 5, 6 (BOŞDUR - NÖVBƏTİ ADDIMLARDA DOLDURACAĞIQ) ---
 with tab4:
-    st.subheader(t['playlist'])
-    st.info("Abituriyentlər üçün video dərslər bura əlavə olunacaq.")
+    st.info("Bu bölmədə AI sənin üçün cədvəl hazırlayacaq (Addım 2).")
 
 with tab5:
-    st.subheader(t['motivation'])
-    st.info("Uğur hekayələri və fun-fact bölməsi.")
+    st.info("Abituriyentlər üçün playlistlər bura əlavə olunacaq (Addım 3).")
+
+with tab6:
+    st.info("Motivasiya və Fun-Fact bölməsi (Addım 4).")
 
 st.divider()
-st.caption(f"EduBalance v2.0 | Language: {lang} 🚀")
+st.caption("EduBalance v2.0 | Multi-Language AI Edition 🚀")
