@@ -1,7 +1,6 @@
 import streamlit as st
 from supabase import create_client
 import datetime
-import pandas as pd
 
 # 1. SUPABASE BAĞLANTISI
 URL = "https://tvqqpbvnfpgyefzxhcjr.supabase.co"
@@ -10,132 +9,126 @@ supabase = create_client(URL, KEY)
 
 st.set_page_config(page_title="EduBalance Pro", layout="wide")
 
-# Sessiya yaddaşı (Xətaların qarşısını almaq üçün)
-if "user_name" not in st.session_state:
-    st.session_state.user_name = ""
-if "current_video" not in st.session_state:
-    st.session_state.current_video = "https://www.youtube.com/watch?v=jfKfPfyJRdk"
+# Sessiya yaddaşı
+if "user_name" not in st.session_state: st.session_state.user_name = ""
+if "current_video" not in st.session_state: st.session_state.current_video = "https://www.youtube.com/watch?v=jfKfPfyJRdk"
 
-# 2. 8 DİLLİ LÜĞƏT SİSTEMİ
-lang = st.sidebar.selectbox("🌐 Choose Language / Dil seçin", 
-    ["Azerbaycan", "Türkçe", "English", "Español", "Italiano", "Français", "Deutsch", "Русский"])
+# 2. 8 DİLLİ TAM TƏRCÜMƏ SİSTEMİ
+lang = st.sidebar.selectbox("🌐 Dil / Language", ["Azerbaycan", "Türkçe", "English", "Español", "Italiano", "Français", "Deutsch", "Русский"])
 
 texts = {
     "Azerbaycan": {
-        "welcome": "EduBalance Pro-ya Xoş Gəldiniz", "profile": "Profil", "daily": "Statistika", "study": "Dərs", "schedule": "Cədvəl", "playlist": "Musiqi", "motivation": "Motivasiya",
-        "user_label": "👤 İstifadəçi adı:", "user_placeholder": "Adınızı daxil edin...", "save": "Yadda saxla", "success": "Uğurla tamamlandı!", "error_user": "Davam etmək üçün adınızı yazıb Enter basın!",
-        "mood_label": "Təxmin edilən Əhval:", "sleep_label": "🌙 Yuxu (Saat):", "water_label": "💧 Su (Litr):", "target_label": "🎯 Hədəf İmtahan:", "subject_label": "📚 Fənn:",
-        "shift_label": "Növbəni seçin:", "shift_m": "Səhər", "shift_a": "Günorta", "calc_btn": "Planı Hesabla", "wake": "☀️ Oyanış", "school": "🏫 Dərs saatı", "rest": "😴 Dincəlmə", "study_time": "✍️ Əsas Dərs", "sleep": "🌙 Yatış",
-        "music_title": "🎧 Fokus Musiqisi", "lofi": "Lofi Fokus", "nature": "Təbiət", "deep": "Dərin Diqqət", "add_link": "YouTube linki:", "fact_title": "💡 Günün Faktı:", "story_btn": "Motivasiya Sözü"
+        "welcome": "EduBalance Pro", "profile": "Profil", "daily": "Statistika", "study": "Dərs", "schedule": "Cədvəl", "playlist": "Musiqi", "motivation": "Motivasiya",
+        "user_label": "👤 İstifadəçi adı:", "save": "Yadda saxla", "success": "Uğurla tamamlandı!", "error_user": "Adınızı daxil edin!",
+        "sleep": "🌙 Yuxu (Saat)", "water": "💧 Su (Litr)", "target": "🎯 Hədəf", "subject": "📚 Fənn",
+        "shift": "Növbə:", "morn": "Səhər", "aft": "Günorta", "calc": "Hesabla", "music": "🎧 Fokus", "link": "YouTube Linki", "fact": "💡 Günün Faktı"
     },
     "Türkçe": {
-        "welcome": "EduBalance Pro'ya Hoş Geldiniz", "profile": "Profil", "daily": "İstatistik", "study": "Ders", "schedule": "Program", "playlist": "Müzik", "motivation": "Motivasyon",
-        "user_label": "👤 Kullanıcı adı:", "user_placeholder": "Adınızı girin...", "save": "Kaydet", "success": "Başarıyla tamamlandı!", "error_user": "Devam etmek için adınızı girin!",
-        "mood_label": "Ruh Hali:", "sleep_label": "🌙 Uyku (Saat):", "water_label": "💧 Su (Litre):", "target_label": "🎯 Hedef Sınav:", "subject_label": "📚 Ders:",
-        "shift_label": "Vardiya:", "shift_m": "Sabah", "shift_a": "Öğle", "calc_btn": "Programı Hesapla", "wake": "☀️ Uyanış", "school": "🏫 Okul", "rest": "😴 Dinlenme", "study_time": "✍️ Ana Ders", "sleep": "🌙 Yatış",
-        "music_title": "🎧 Odaklanma Müziği", "lofi": "Lofi Odak", "nature": "Doğa", "deep": "Derin Odak", "add_link": "YouTube linki:", "fact_title": "💡 Günün Bilgisi:", "story_btn": "Motivasyon Sözü"
+        "welcome": "EduBalance Pro", "profile": "Profil", "daily": "Analiz", "study": "Ders", "schedule": "Program", "playlist": "Müzik", "motivation": "Motivasyon",
+        "user_label": "👤 Kullanıcı adı:", "save": "Kaydet", "success": "Tamamlandı!", "error_user": "Adınızı girin!",
+        "sleep": "🌙 Uyku (Saat)", "water": "💧 Su (Litre)", "target": "🎯 Hedef", "subject": "📚 Ders",
+        "shift": "Vardiya:", "morn": "Sabah", "aft": "Öğle", "calc": "Hesapla", "music": "🎧 Odak", "link": "YouTube Linki", "fact": "💡 Günün Bilgisi"
     },
     "English": {
-        "welcome": "Welcome to EduBalance Pro", "profile": "Profile", "daily": "Analytics", "study": "Study", "schedule": "Schedule", "playlist": "Music", "motivation": "Motivation",
-        "user_label": "👤 Username:", "user_placeholder": "Enter your name...", "save": "Save", "success": "Success!", "error_user": "Please enter username!",
-        "mood_label": "Mood:", "sleep_label": "🌙 Sleep (Hours):", "water_label": "💧 Water (Liters):", "target_label": "🎯 Target Exam:", "subject_label": "📚 Subject:",
-        "shift_label": "Select Shift:", "shift_m": "Morning", "shift_a": "Afternoon", "calc_btn": "Calculate Plan", "wake": "☀️ Wake up", "school": "🏫 School", "rest": "😴 Resting", "study_time": "✍️ Main Study", "sleep": "🌙 Bedtime",
-        "music_title": "🎧 Focus Music", "lofi": "Lofi Focus", "nature": "Nature", "deep": "Deep Focus", "add_link": "YouTube link:", "fact_title": "💡 Daily Fact:", "story_btn": "Motivation Quote"
+        "welcome": "EduBalance Pro", "profile": "Profile", "daily": "Analytics", "study": "Study", "schedule": "Schedule", "playlist": "Music", "motivation": "Motivation",
+        "user_label": "👤 Username:", "save": "Save", "success": "Success!", "error_user": "Enter name!",
+        "sleep": "🌙 Sleep (Hours)", "water": "💧 Water (Liters)", "target": "🎯 Target", "subject": "📚 Subject",
+        "shift": "Shift:", "morn": "Morning", "aft": "Afternoon", "calc": "Calculate", "music": "🎧 Focus", "link": "YouTube Link", "fact": "💡 Daily Fact"
     },
-    # Digər dillər üçün (ES, IT, FR, DE, RU) v2.5-dəki tərcümələri bura daxil edə bilərsən. 
-    # Kodun qısa olması üçün bura 3 əsas dili qoydum, amma struktur hazırdır.
+    "Español": { "welcome": "EduBalance Pro", "profile": "Perfil", "daily": "Estadísticas", "study": "Estudio", "schedule": "Horario", "playlist": "Música", "motivation": "Motivación", "user_label": "👤 Usuario:", "save": "Guardar", "success": "¡Éxito!", "error_user": "¡Nombre!", "sleep": "🌙 Sueño", "water": "💧 Agua", "target": "🎯 Meta", "subject": "📚 Materia", "shift": "Turno:", "morn": "Mañana", "aft": "Tarde", "calc": "Calcular", "music": "🎧 Enfoque", "link": "YouTube Link", "fact": "💡 Dato" },
+    "Italiano": { "welcome": "EduBalance Pro", "profile": "Profilo", "daily": "Statistiche", "study": "Studio", "schedule": "Programma", "playlist": "Musica", "motivation": "Motivazione", "user_label": "👤 Nome:", "save": "Salva", "success": "Fatto!", "error_user": "Nome!", "sleep": "🌙 Sonno", "water": "💧 Acqua", "target": "🎯 Obiettivo", "subject": "📚 Materia", "shift": "Turno:", "morn": "Mattina", "aft": "Pomeriggio", "calc": "Calcola", "music": "🎧 Focus", "link": "YouTube Link", "fact": "💡 Curiosità" },
+    "Français": { "welcome": "EduBalance Pro", "profile": "Profil", "daily": "Stats", "study": "Étude", "schedule": "Calendrier", "playlist": "Musique", "motivation": "Motivation", "user_label": "👤 Nom:", "save": "Enregistrer", "success": "Succès!", "error_user": "Nom!", "sleep": "🌙 Sommeil", "water": "💧 Eau", "target": "🎯 Examen", "subject": "📚 Matière", "shift": "Horaire:", "morn": "Matin", "aft": "Après-midi", "calc": "Calculer", "music": "🎧 Focus", "link": "YouTube Link", "fact": "💡 Fait" },
+    "Deutsch": { "welcome": "EduBalance Pro", "profile": "Profil", "daily": "Statistik", "study": "Lernen", "schedule": "Planer", "playlist": "Musik", "motivation": "Motivation", "user_label": "👤 Name:", "save": "Speichern", "success": "Erfolg!", "error_user": "Name!", "sleep": "🌙 Schlaf", "water": "💧 Wasser", "target": "🎯 Ziel", "subject": "📚 Fach", "shift": "Schicht:", "morn": "Morgen", "aft": "Nachmittag", "calc": "Berechnen", "music": "🎧 Fokus", "link": "YouTube Link", "fact": "💡 Fakt" },
+    "Русский": { "welcome": "EduBalance Pro", "profile": "Профиль", "daily": "Статистика", "study": "Учеба", "schedule": "План", "playlist": "Музыка", "motivation": "Мотивация", "user_label": "👤 Имя:", "save": "Сохранить", "success": "Успешно!", "error_user": "Имя!", "sleep": "🌙 Сон", "water": "💧 Вода", "target": "🎯 Цель", "subject": "📚 Предмет", "shift": "Смена:", "morn": "Утро", "aft": "День", "calc": "Рассчитать", "music": "🎧 Фокус", "link": "YouTube Link", "fact": "💡 Фаkt" }
 }
 
 t = texts.get(lang, texts["Azerbaycan"])
-st.title(f"🎓 {t['welcome']}")
+st.title(f"🚀 {t['welcome']}")
 
 # 3. İSTİFADƏÇİ GİRİŞİ
-user_input = st.sidebar.text_input(t['user_label'], value=st.session_state.user_name, placeholder=t['user_placeholder'])
-if user_input:
-    st.session_state.user_name = user_input
-
+user_input = st.sidebar.text_input(t['user_label'], value=st.session_state.user_name)
+if user_input: st.session_state.user_name = user_input
 if not st.session_state.user_name:
-    st.warning(t['error_user'])
-    st.stop()
+    st.warning(t['error_user']); st.stop()
 
-# TAB STRUKTURU
+# Profil ID-sini çəkmək
+res_prof = supabase.table("students_profiles").select("id").eq("username", st.session_state.user_name).execute()
+u_id = res_prof.data[0]['id'] if (res_prof.data and len(res_prof.data) > 0) else None
+
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([t['profile'], t['daily'], t['study'], t['schedule'], t['playlist'], t['motivation']])
 
 # --- TAB 1: PROFİL ---
 with tab1:
-    target = st.selectbox(t['target_label'], ["Buraxılış", "SAT", "YÖS", "MİQ", "Magistratura"])
+    target_ex = st.selectbox(t['target'], ["Buraxılış", "SAT", "YÖS", "MİQ", "Other"])
     if st.button(f"➕ {t['profile']}"):
-        supabase.table("students_profiles").upsert({"username": st.session_state.user_name, "Language": lang, "target_exam": target}, on_conflict="username").execute()
+        supabase.table("students_profiles").upsert({"username": st.session_state.user_name, "Language": lang, "target_exam": target_ex}, on_conflict="username").execute()
         st.balloons(); st.success(t['success'])
 
-# --- TAB 2: ANALİTİKA (XƏTASIZ QRAFİK) ---
+# --- TAB 2: ANALİTİKA (PANDAS-SIZ) ---
 with tab2:
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        sl_dur = st.slider(t['sleep_label'], 0.0, 12.0, 8.0)
-        wt_lit = st.number_input(t['water_label'], 0.0, 5.0, 1.5)
-        if st.button(f"💾 {t['save']} (Health)"):
-            res = supabase.table("students_profiles").select("id").eq("username", st.session_state.user_name).execute()
-            if res.data:
-                supabase.table("daily_stats").insert({"user_ID": res.data[0]['id'], "sleep_hours": sl_dur, "water_liters": wt_lit}).execute()
-                st.success(t['success'])
-    
-    with col2:
-        res_p = supabase.table("students_profiles").select("id").eq("username", st.session_state.user_name).execute()
-        if res_p.data:
-            stats = supabase.table("daily_stats").select("created_at, sleep_hours").eq("user_ID", res_p.data[0]['id']).execute()
-            if stats.data:
-                df = pd.DataFrame(stats.data)
-                df['created_at'] = pd.to_datetime(df['created_at']).dt.date
-                st.line_chart(df.set_index('created_at'))
-            else: st.info("Hələ ki qrafik məlumatı yoxdur.")
+    c1, c2 = st.columns([1, 2])
+    with c1:
+        sl = st.slider(t['sleep'], 0.0, 12.0, 8.0)
+        wt = st.number_input(t['water'], 0.0, 5.0, 2.0)
+        if st.button(t['save']):
+            if u_id:
+                supabase.table("daily_stats").insert({"user_ID": u_id, "sleep_hours": sl, "water_liters": wt}).execute()
+                st.rerun()
+    with c2:
+        if u_id:
+            stats_data = supabase.table("daily_stats").select("sleep_hours").eq("user_ID", u_id).limit(10).execute()
+            if stats_data.data:
+                # Pandas olmadan qrafik: Siyahıdan istifadə edirik
+                chart_data = [d['sleep_hours'] for d in stats_data.data]
+                st.line_chart(chart_data)
+                st.caption("Son 10 günlük yuxu qrafiki")
+            else: st.info("Hələ məlumat daxil edilməyib.")
 
-# --- TAB 3: DƏRS (BAR CHART) ---
+# --- TAB 3: DƏRS (PANDAS-SIZ) ---
 with tab3:
-    sub_choice = st.selectbox(t['subject_label'], ["Riyaziyyat", "İngilis", "Fizika", "Tarix"])
-    dur_min = st.number_input("⏱️ (min):", 10, 300, 45)
-    if st.button(f"📖 {t['save']} (Study)"):
-        res = supabase.table("students_profiles").select("id").eq("username", st.session_state.user_name).execute()
-        if res.data:
-            supabase.table("study_sessions").insert({"user_ID": res.data[0]['id'], "subject": sub_choice, "duration_time": dur_min}).execute()
-            st.rerun()
-
-    study_data = supabase.table("study_sessions").select("subject, duration_time").execute()
-    if study_data.data:
-        sdf = pd.DataFrame(study_data.data)
-        st.bar_chart(sdf.groupby('subject').sum())
+    col_a, col_b = st.columns([1, 2])
+    with col_a:
+        subjects_list = ["Math", "English", "Science", "History", "Physics"]
+        sb = st.selectbox(t['subject'], subjects_list)
+        dr = st.number_input("Min:", 10, 300, 45)
+        if st.button("📖 OK"):
+            if u_id:
+                supabase.table("study_sessions").insert({"user_ID": u_id, "subject": sb, "duration_time": dr}).execute()
+                st.rerun()
+    with col_b:
+        if u_id:
+            study_res = supabase.table("study_sessions").select("subject, duration_time").eq("user_ID", u_id).execute()
+            if study_res.data:
+                # Pandas-sız toplama (Aggregation)
+                summary = {}
+                for item in study_res.data:
+                    s = item['subject']
+                    d = item['duration_time']
+                    summary[s] = summary.get(s, 0) + d
+                st.bar_chart(summary)
+            else: st.info("Dərs qeydi tapılmadı.")
 
 # --- TAB 4: AĞILLI CƏDVƏL ---
 with tab4:
-    sh = st.radio(t['shift_label'], [t['shift_m'], t['shift_a']])
-    s_time = st.time_input("Start:", datetime.time(8, 0))
-    e_time = st.time_input("End:", datetime.time(13, 0))
-    if st.button(t['calc_btn']):
-        st.info("🎯 Sənin Optimal Rejimin:")
-        if sh == t['shift_m']:
-            st.write(f"{t['wake']}: 06:30 | {t['school']}: {s_time} - {e_time} | {t['study_time']}: 17:00 - 20:00")
-        else:
-            st.write(f"{t['wake']}: 08:00 | {t['study_time']}: 09:30 - 12:00 | {t['school']}: {s_time} - {e_time}")
+    sh = st.radio(t['shift'], [t['morn'], t['aft']])
+    if st.button(t['calc']):
+        if sh == t['morn']: st.success("07:00 Wakeup | 08:00 School | 17:00 Deep Study")
+        else: st.success("08:00 Wakeup | 10:00 Deep Study | 14:00 School")
 
-# --- TAB 5: PLAYLIST (ÖZÜN ƏLAVƏ ET) ---
+# --- TAB 5: MUSİQİ ---
 with tab5:
-    st.subheader(t['music_title'])
-    c1, c2, c3 = st.columns(3)
-    if c1.button(t['lofi']): st.session_state.current_video = "https://www.youtube.com/watch?v=jfKfPfyJRdk"
-    if c2.button(t['nature']): st.session_state.current_video = "https://www.youtube.com/watch?v=mPZkdNFqeps"
-    if c3.button(t['deep']): st.session_state.current_video = "https://www.youtube.com/watch?v=4mS_r0D999U"
-    
-    custom_url = st.text_input(t['add_link'], placeholder="YouTube linkini yapışdır...")
-    if st.button("OK"):
-        if custom_url: st.session_state.current_video = custom_url
-    
+    st.subheader(t['music'])
+    c_m1, c_m2 = st.columns(2)
+    if c_m1.button("Lofi"): st.session_state.current_video = "https://www.youtube.com/watch?v=jfKfPfyJRdk"
+    if c_m2.button("Nature"): st.session_state.current_video = "https://www.youtube.com/watch?v=mPZkdNFqeps"
+    link_inp = st.text_input(t['link'], st.session_state.current_video)
+    if st.button("Play"): st.session_state.current_video = link_inp
     st.video(st.session_state.current_video)
 
 # --- TAB 6: MOTİVASİYA ---
 with tab6:
-    st.write(f"**{t['fact_title']}** {t['fact']}")
-    if st.button(t['story_btn']):
-        st.success("💪 'Məqsədi olmayan gəmiyə heç bir külək kömək etməz.' - Sənin məqsədin artıq bəllidir!")
+    st.info(f"{t['fact']}: Beyin fokuslandığı zaman daha çox enerji sərf edir. Su içməyi unutma!")
+    if st.button("Quote"): st.write("🚀 'Success is the sum of small efforts, repeated day in and day out.'")
 
 st.divider()
-st.caption("EduBalance v3.1 | Yüksək Performans Rejimi 🚀")
+st.caption("EduBalance v3.3 | No-Pandas Version 🚀")
