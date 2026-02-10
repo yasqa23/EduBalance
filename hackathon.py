@@ -1,23 +1,19 @@
 import streamlit as st
 from supabase import create_client
 import datetime
-import google.generativeai as genai
 
-# 1. BAĞLANTILAR
+# 1. SUPABASE BAĞLANTISI
 URL = "https://tvqqpbvnfpgyefzxhcjr.supabase.co"
 KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2cXFwYnZuZnBneWVmenhoY2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NjkyNjMsImV4cCI6MjA4NjA0NTI2M30.o9m2wuK-FrFRLZ0FLfivz5X8Ryen9OluGvc5F3f6oZY"
 supabase = create_client(URL, KEY)
 
-# AI tənzimləməsi (Sənin açarın)
-genai.configure(api_key="AIzaSyAY0vlR1_YOnD1bYUdS74tacmWq9w7EaSU")
-model = genai.GenerativeModel('gemini-1.5-flash')
-
 st.set_page_config(page_title="EduBalance Global", layout="centered")
 
+# Sessiya yaddaşı
 if "user_name" not in st.session_state:
     st.session_state.user_name = ""
 
-# 2. 7 DİLLİ LÜĞƏT SİSTEMİ (Addım 1)
+# 2. 7 DİLLİ LÜĞƏT SİSTEMİ
 lang = st.sidebar.selectbox("🌐 Choose Language / Dil seçin", 
     ["Azerbaycan", "Türkçe", "English", "Español", "Italiano", "Français", "Deutsch", "Русский"])
 
@@ -29,7 +25,7 @@ texts = {
         "profile": "Profil",
         "daily": "Statistika",
         "study": "Dərs",
-        "ai_mentor": "🤖 AI Mentor",
+        "ai_mentor": "📅 Cədvəl Planı",
         "playlist": "📺 Playlist",
         "motivation": "🔥 Motivasiya",
         "save": "Yadda saxla",
@@ -51,7 +47,7 @@ texts = {
         "profile": "Profil",
         "daily": "İstatistik",
         "study": "Ders",
-        "ai_mentor": "🤖 AI Mentor",
+        "ai_mentor": "📅 Ders Planı",
         "playlist": "📺 Oynatma Listesi",
         "motivation": "🔥 Motivasyon",
         "save": "Kaydet",
@@ -73,7 +69,7 @@ texts = {
         "profile": "Profile",
         "daily": "Stats",
         "study": "Study",
-        "ai_mentor": "🤖 AI Mentor",
+        "ai_mentor": "📅 Study Plan",
         "playlist": "📺 Playlist",
         "motivation": "🔥 Motivation",
         "save": "Save",
@@ -95,7 +91,7 @@ texts = {
         "profile": "Perfil",
         "daily": "Estadísticas",
         "study": "Estudio",
-        "ai_mentor": "🤖 IA Mentor",
+        "ai_mentor": "📅 Horario",
         "playlist": "📺 Lista",
         "motivation": "🔥 Motivación",
         "save": "Guardar",
@@ -117,7 +113,7 @@ texts = {
         "profile": "Profilo",
         "daily": "Statistiche",
         "study": "Studio",
-        "ai_mentor": "🤖 IA Mentor",
+        "ai_mentor": "📅 Piano",
         "playlist": "📺 Playlist",
         "motivation": "🔥 Motivazione",
         "save": "Salva",
@@ -139,7 +135,7 @@ texts = {
         "profile": "Profil",
         "daily": "Stats",
         "study": "Étude",
-        "ai_mentor": "🤖 IA Mentor",
+        "ai_mentor": "📅 Calendrier",
         "playlist": "📺 Playlist",
         "motivation": "🔥 Motivation",
         "save": "Enregistrer",
@@ -161,7 +157,7 @@ texts = {
         "profile": "Profil",
         "daily": "Statistiken",
         "study": "Lernen",
-        "ai_mentor": "🤖 KI-Mentor",
+        "ai_mentor": "📅 Lernplan",
         "playlist": "📺 Playlist",
         "motivation": "🔥 Motivation",
         "save": "Speichern",
@@ -183,7 +179,7 @@ texts = {
         "profile": "Профиль",
         "daily": "Статистика",
         "study": "Учеба",
-        "ai_mentor": "🤖 ИИ Ментор",
+        "ai_mentor": "📅 План",
         "playlist": "📺 Плейлист",
         "motivation": "🔥 Мотивация",
         "save": "Сохранить",
@@ -203,7 +199,7 @@ texts = {
 t = texts[lang]
 st.title(f"🎓 {t['welcome']}")
 
-# 3. İSTİFADƏÇİ GİRİŞİ
+# İSTİFADƏÇİ GİRİŞİ
 user_input = st.text_input(t['user_label'], value=st.session_state.user_name, placeholder=t['user_placeholder'])
 
 if user_input:
@@ -213,7 +209,7 @@ if not st.session_state.user_name:
     st.warning(t['error_user'])
     st.stop()
 
-# TAB STRUKTURU (Addım-addım dolduracağıq)
+# TAB STRUKTURU
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([t['profile'], t['daily'], t['study'], t['ai_mentor'], t['playlist'], t['motivation']])
 
 # --- TAB 1: PROFİL ---
@@ -221,6 +217,7 @@ with tab1:
     target = st.selectbox(t['target_label'], t['exams'])
     if st.button(f"➕ {t['profile']}"):
         prof_data = {"username": st.session_state.user_name, "Language": lang, "target_exam": target}
+        # Upsert istifadə edirik ki, eyni adam yenidən qeyd olsa xəta verməsin, sadəcə yeniləsin
         supabase.table("students_profiles").upsert(prof_data, on_conflict="username").execute()
         st.balloons()
         st.success(f"@{st.session_state.user_name}, {t['success']}")
@@ -259,15 +256,15 @@ with tab3:
             supabase.table("study_sessions").insert(study).execute()
             st.success(f"{subject_choice} - {t['success']}")
 
-# --- TAB 4, 5, 6 (BOŞDUR - NÖVBƏTİ ADDIMLARDA DOLDURACAĞIQ) ---
+# --- TAB 4, 5, 6 (STATİK BÖLMƏLƏR) ---
 with tab4:
-    st.info("Bu bölmədə AI sənin üçün cədvəl hazırlayacaq (Addım 2).")
+    st.info("📅 Tezliklə: Burada dərsləriniz üçün xüsusi cədvəl olacaq.")
 
 with tab5:
-    st.info("Abituriyentlər üçün playlistlər bura əlavə olunacaq (Addım 3).")
+    st.info("📺 Tezliklə: Abituriyentlər üçün seçilmiş dərs playlistləri.")
 
 with tab6:
-    st.info("Motivasiya və Fun-Fact bölməsi (Addım 4).")
+    st.info("🔥 Tezliklə: Uğur hekayələri və maraqlı faktlar.")
 
 st.divider()
-st.caption("EduBalance v2.0 | Multi-Language AI Edition 🚀")
+st.caption("EduBalance v2.0 | Multi-Language Stable Edition 🚀")
